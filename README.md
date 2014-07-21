@@ -6,9 +6,7 @@ Lein-asset-minifier is a [Leiningen](https://github.com/technomancy/leiningen) p
 
 To use `lein-asset-minifier`, add it as a plugin to your `project.clj` file:
 
-```clojure
-:plugins [[lein-asset-minifier "0.1.0"]]
-```
+[![Clojars Project](http://clojars.org/lein-asset-minifier/latest-version.svg)](http://clojars.org/lein-asset-minifier)
 
 Then add a new `:minify-assets` key to your `project.clj` file that contains a map of configuration options.
 At minimum there must be an `:assets` key that specifies the assets to minify.
