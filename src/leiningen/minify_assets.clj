@@ -20,9 +20,9 @@
                      errors]}]
             (minify assets options)]
       (if (empty? sources)
-        (println "\n\nno sources found at path:" path)
+        (println "\nno sources found at path:" path)
         (do
-          (println "\n\nsummary for:"
+          (println "\nsummary for:"
                    (s/join ", " sources)
                    "\noriginal size:" original-size
                    "\ncompressed size:" compressed-size
