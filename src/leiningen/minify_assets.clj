@@ -19,11 +19,12 @@
                      warnings
                      errors]}]
             (minify assets options)]
-      (if (empty? sources)
+      (if (empty? path)
         (println "\nno sources found at path:" path)
         (do
-          (println "\nsummary for:"
-                   (s/join ", " sources)
+          (println "\nsummary for:" path
+                   "\nassets:" (s/join ", " sources)
+                   "\noutput file:" target
                    "\noriginal size:" original-size
                    "\ncompressed size:" compressed-size
                    "\ngzipped size:" gzipped-size)
