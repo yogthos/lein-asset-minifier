@@ -42,6 +42,13 @@ The minifier also takes optional minification hints:
 * `:optimizations` - specifies the level of Js optimizations, valid values are `:simple`, `:whitespace` or `:advanced`, defaults to `:simple`.
 * `:externs` - can be used to specify the externs file to be used with the advanced optimisations to prevent munging of external functions.
 
+The plugin can be now be invoked by running:
+
+
+```
+lein minify-assets
+```
+
 ## License
 
 Copyright © 2014 Yogthos
