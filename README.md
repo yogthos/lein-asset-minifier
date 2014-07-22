@@ -70,7 +70,7 @@ lein minify-assets dev
 
 Defaults to `:dev` when no profile is specified.
 
-The above example could be used with [lein-cooper](https://github.com/kouphax/lein-cooper) to automatically merge the JavaScript assets without minification for development, and then minify the assets for release. Since the filename stays the same, this approach obviates the need to write additional logic in code to load different assets for development and release builds.
+The above example could be used with [lein-cooper](https://github.com/kouphax/lein-cooper) to automatically merge the JavaScript assets without minification for development, and then minify the assets for the release. Since the filename stays the same, this approach obviates the need to write additional logic in code to load different assets for development and release builds.
 
 
 
