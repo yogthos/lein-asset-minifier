@@ -38,8 +38,8 @@ The minifier also takes optional minification hints:
 ```
 
 * `:linebreak` - specifies optional linebreak for CSS resources
-* `:optimizations` - specifies the level of JavaScript optimizations, valid values are `:simple`, `:whitespace` or `:advanced`, defaults to `:simple`.
-* `:externs` - can be used to specify the externs file to be used with the advanced optimisations to prevent munging of external functions.
+* `:optimizations` - specifies the level of JavaScript optimizations, valid values are `:simple`, `:whitespace` or `:advanced`, defaults to `:simple`
+* `:externs` - can be used to specify the externs file to be used with the advanced optimisations to prevent munging of external functions
 
 The plugin can be now be invoked by running:
 
