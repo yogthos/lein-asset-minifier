@@ -15,6 +15,14 @@
     opts (:dev opts)
     :else (println "WARNING: no :minify-assets entry found in project definition."))))
 
+
+(defn filter-results [& results]
+  (->> results
+       (partition 2)
+       (remove #(nil? (second %)))
+       (map (partial apply str))
+       (apply str)))
+
 (defn minify-assets [project & [profile]]
   (println "minifying assets...")
   (let [{:keys [assets options]} (extract-options project profile)]
@@ -29,12 +37,13 @@
       (if (empty? path)
         (println "\nno sources found at path:" path)
         (do
-          (println "\nsummary for:" path
-                   "\nassets:" (s/join ", " sources)
-                   "\noutput file:" target
-                   "\noriginal size:" original-size
-                   "\ncompressed size:" compressed-size
-                   "\ngzipped size:" gzipped-size)
+          (println (filter-results
+                    "\nsummary for:" path
+                    "\nassets:" (s/join ", " sources)
+                    "\noutput file:" target
+                    "\noriginal size:" original-size
+                    "\ncompressed size:" compressed-size
+                    "\ngzipped size:" gzipped-size))
           (when (not-empty warnings)
             (println "warnings:\n" (s/join "\n" warnings)))
           (when (not-empty errors)
