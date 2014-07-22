@@ -4,13 +4,20 @@
 
 (defn extract-options
   "Given a project, returns a seq of cljsbuild option maps."
-  [project]
-  (or (:minify-assets project)
-      (println "WARNING: no :minify-assets entry found in project definition.")))
+  [project & [profile]]
+  (let [opts (:minify-assets project)
+        profile (keyword profile)]
+   (cond
+    (and opts profile (nil? (profile opts))) (println "WARNING: profile" (name profile) "not found")
+    (some #{:assets} (keys opts)) opts
+    (and opts profile) (profile opts)
 
-(defn minify-assets [project]
-  (let [{:keys [assets options]} (extract-options project)]
-    (println "minifying assets...")
+    opts (:dev opts)
+    :else (println "WARNING: no :minify-assets entry found in project definition."))))
+
+(defn minify-assets [project & [profile]]
+  (println "minifying assets...")
+  (let [{:keys [assets options]} (extract-options project profile)]
     (doseq [[[path target]
              {:keys [sources
                      original-size
