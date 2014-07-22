@@ -1,6 +1,6 @@
 # lein-asset-minifier
 
-Lein-asset-minifier is a [Leiningen](https://github.com/technomancy/leiningen) plugin for CSS/JavaScript asset minification.
+Lein-asset-minifier is a [Leiningen](https://github.com/technomancy/leiningen) plugin for CSS/JavaScript asset minification. The plugin uses the [asset-minifier](https://github.com/yogthos/asset-minifier) to do minifcation.
 
 ## Usage
 
