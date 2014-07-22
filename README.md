@@ -1,6 +1,6 @@
 # lein-asset-minifier
 
-Lein-asset-minifier is a [Leiningen](https://github.com/technomancy/leiningen) plugin for CSS/Js asset minification.
+Lein-asset-minifier is a [Leiningen](https://github.com/technomancy/leiningen) plugin for CSS/JavaScript asset minification.
 
 ## Usage
 
@@ -22,7 +22,8 @@ a mix of files and directories.
    "resources/public/js/vendor.min.css" "dev/resources/vendor"
    "resources/public/js/site.min.js" "dev/resources/js"
    "resources/public/js/vendor.min.js" ["dev/resources/vendor1"
-                                        "dev/resources/vendor2"]}}
+                                        "dev/resources/vendor2"
+                                        "dev/resources/some-script.js"]}}
 ```
 
 The minifier also takes optional minification hints:
@@ -37,7 +38,7 @@ The minifier also takes optional minification hints:
 ```
 
 * `:linebreak` - specifies optional linebreak for CSS resources
-* `:optimizations` - specifies the level of Js optimizations, valid values are `:simple`, `:whitespace` or `:advanced`, defaults to `:simple`.
+* `:optimizations` - specifies the level of JavaScript optimizations, valid values are `:simple`, `:whitespace` or `:advanced`, defaults to `:simple`.
 * `:externs` - can be used to specify the externs file to be used with the advanced optimisations to prevent munging of external functions.
 
 The plugin can be now be invoked by running:
