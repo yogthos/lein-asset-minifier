@@ -38,7 +38,7 @@ The minifier also takes optional minification hints:
 ```
 
 * `:linebreak` - specifies optional linebreak for CSS resources
-* `:optimizations` - specifies the level of JavaScript optimizations, valid values are `:simple`, `:whitespace` or `:advanced`, defaults to `:simple`
+* `:optimizations` - specifies the level of JavaScript optimizations, valid values are `:none`, `:simple`, `:whitespace` or `:advanced`, defaults to `:simple`
 * `:externs` - can be used to specify the externs file to be used with the advanced optimisations to prevent munging of external functions
 
 The plugin can be now be invoked by running:
@@ -56,7 +56,7 @@ It's also possible to specify different profiles for asset minification as follo
  {:assets
    {"resources/public/css/site.min.css" "dev/resources/public/css"
     "resources/public/js/site.min.js" "dev/resources/public/js"}
-  :options {:optimization :simple}}
+  :options {:optimization :none}}
  :release
  {:assets
    {"resources/public/css/site.min.css" "dev/resources/public/css"
