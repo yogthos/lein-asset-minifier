@@ -41,27 +41,38 @@ The minifier also takes optional minification hints:
 * `:optimizations` - specifies the level of JavaScript optimizations, valid values are `:simple`, `:whitespace` or `:advanced`, defaults to `:simple`
 * `:externs` - can be used to specify the externs file to be used with the advanced optimisations to prevent munging of external functions
 
+The plugin can be now be invoked by running:
+
+```
+lein minify-assets
+
+```
+
 It's also possible to specify different profiles for asset minification as follows:
 
 ```clojure
 :minify-assets
 {:dev
-   {:assets
-    {"resources/public/css/site.min.css" "dev/resources/public/css"
-     "resources/public/js/site.min.js" "dev/resources/public/js"}
-     :options {:optimization :simple}}
- :prod {:assets
-        {"resources/public/css/site.min.css" "dev/resources/public/css"
-         "resources/public/js/site.min.js" "dev/resources/public/js"}
-        :options {:optimization :advanced}}}
+ {:assets
+   {"resources/public/css/site.min.css" "dev/resources/public/css"
+    "resources/public/js/site.min.js" "dev/resources/public/js"}
+  :options {:optimization :simple}}
+ :release
+ {:assets
+   {"resources/public/css/site.min.css" "dev/resources/public/css"
+    "resources/public/js/site.min.js" "dev/resources/public/js"}
+  :options {:optimization :advanced}}}
 ```
 
-The plugin can be now be invoked by running:
+```
+lein minify-assets dev
+```
+
+Defaults to `:dev` when no profile is specified.
 
 
-```
-lein minify-assets
-```
+
+
 
 ## License
 
