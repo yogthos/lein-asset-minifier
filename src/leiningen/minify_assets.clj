@@ -37,12 +37,11 @@
         (println "\nno sources found at path:" path)
         (do
           (println (filter-results
-                    "\nsummary for:" path
-                    "\nassets:" (s/join ", " sources)
-                    "\noutput file:" target
-                    "\noriginal size:" original-size
-                    "\ncompressed size:" compressed-size
-                    "\ngzipped size:" gzipped-size))
+                    "\nminifying: " target
+                    "\nassets: " (s/join ", " sources)
+                    "\noriginal size: " original-size
+                    "\ncompressed size: " compressed-size
+                    "\ngzipped size: " gzipped-size))
           (when (not-empty warnings)
             (println "warnings:\n" (s/join "\n" warnings)))
           (when (not-empty errors)
