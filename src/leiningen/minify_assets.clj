@@ -15,7 +15,6 @@
     opts (:dev opts)
     :else (println "WARNING: no :minify-assets entry found in project definition."))))
 
-
 (defn filter-results [& results]
   (->> results
        (partition 2)
