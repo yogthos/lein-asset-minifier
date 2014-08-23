@@ -18,8 +18,8 @@ a mix of files and directories.
 ```clojure
 :minify-assets
 {:assets
-  {"resources/public/js/site.min.css" "dev/resources/css"
-   "resources/public/js/vendor.min.css" "dev/resources/vendor"
+  {"resources/public/css/site.min.css" "dev/resources/css"
+   "resources/public/css/vendor.min.css" "dev/resources/vendor"
    "resources/public/js/site.min.js" "dev/resources/js"
    "resources/public/js/vendor.min.js" ["dev/resources/vendor1"
                                         "dev/resources/vendor2"
