@@ -3,7 +3,7 @@
             [clojure.java.io :refer [file]]
             [clojure.core.async
              :as async
-             :refer [go thread close! <! >! >!!]])
+             :refer [go thread <!! >!!]])
   (:import
        [java.nio.file
         FileSystems
@@ -26,30 +26,25 @@
                 StandardWatchEventKinds/OVERFLOW])
              (into-array [(event-modifier-high)])))
 
-(defn watch-loop [watch-service c run?]
-  (while @run?
+(defn watch-loop [watch-service c]
+  (while true
       (when-let [k (.take watch-service)]
         (doseq [event (.pollEvents k)]
           (>!! c event))
         (when (.reset k)))))
 
-(defn watch [path run?]
+(defn watch [path]
   (let [dir  (-> path (file) (.toURI) (Paths/get))
         c    (async/chan)]
     (thread
       (with-open [watch-service (.newWatchService (FileSystems/getDefault))]
        (register-events! dir watch-service)
-       (watch-loop watch-service c run?)))
+       (watch-loop watch-service c)))
     c))
 
 (defn start-watch! [path handler]
-  (let [run? (atom true)
-        c (watch "resources" run?)]
-    (println "watching" path "for changes")
-    (go
-     (while @run?
-      (let [e (<! c)]
-        (handler e))))
-    (fn []
-      (reset! run? false)
-      (close! c))))
+  (Thread.
+    #(let [c (watch path)]
+       (while true
+         (let [e (<!! c)]
+           (handler e))))))
