@@ -1,6 +1,15 @@
 (ns leiningen.minify-assets
-  (:require [asset-minifier.core :refer [minify]]
-            [clojure.string :as s]))
+  (:require [asset-minifier.core :as minifier]
+            [minify-assets.file-watcher :refer [start-watch!]]
+            [clojure.java.io :refer [file]]
+            [clojure.string :as s]
+            [clojure.core.async :as async :refer [go <! >!]])
+  (:import
+       [java.nio.file
+        FileSystems
+        Path
+        Paths
+        StandardWatchEventKinds]))
 
 (defn extract-options
   "Given a project, returns a seq of cljsbuild option maps."
@@ -22,17 +31,32 @@
        (map (partial apply str))
        (apply str)))
 
-(defn minify-assets [project & [profile]]
-  (println "minifying assets...")
-  (let [{:keys [assets options]} (extract-options project profile)]
-    (doseq [[[path target]
+(defn asset-path [asset]
+  (let [asset-file (file asset)]
+    (if (.isDirectory asset-file)
+      asset
+      (.getParent asset-file))))
+
+(defn watch-paths [assets]
+  (set
+   (mapcat
+     (fn[asset]
+       (cond
+        (string? asset)
+        [(asset-path asset)]
+        (coll? asset)
+        (map asset-path asset)))
+     (vals assets))))
+
+(defn minify [assets options]
+  (doseq [[[path target]
              {:keys [sources
                      original-size
                      compressed-size
                      gzipped-size
                      warnings
                      errors]}]
-            (minify assets options)]
+            (minifier/minify assets options)]
       (if (empty? path)
         (println "\nno sources found at path:" path)
         (do
@@ -45,4 +69,22 @@
           (when (not-empty warnings)
             (println "warnings:\n" (s/join "\n" warnings)))
           (when (not-empty errors)
-            (println "errors:\n" (s/join "\n" errors))))))))
+            (println "errors:\n" (s/join "\n" errors)))))))
+
+(defn event-handler [assets options]
+  (fn [e]
+    (println (-> e (.context) (.toString)) "was modified!")
+    (minify assets options)))
+
+(defn minify-assets [project & opts]
+  (println "minifying assets...")
+  (let [watch? (some #{"watch"} opts)
+        profile (remove #{"watch"} opts)
+        {:keys [assets options]} (extract-options project profile)]
+    (if watch?
+      (let [watchers
+             (for [path (watch-paths assets)]
+               (start-watch! path (event-handler assets options)))]
+        (doseq [watcher watchers] (.start watcher))
+        (.join (first watchers)))            
+      (minify assets options))))
