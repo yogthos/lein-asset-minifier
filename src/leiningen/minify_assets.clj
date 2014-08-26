@@ -49,6 +49,7 @@
      (vals assets))))
 
 (defn minify [assets options]
+  (println "minifying assets...")
   (doseq [[[path target]
              {:keys [sources
                      original-size
@@ -76,8 +77,9 @@
     (println (-> e (.context) (.toString)) "was modified!")
     (minify assets options)))
 
+(def compiled? (atom false))
+
 (defn minify-assets [project & opts]
-  (println "minifying assets...")
   (let [watch? (some #{"watch"} opts)
         profile (remove #{"watch"} opts)
         {:keys [assets options]} (extract-options project profile)]
@@ -86,5 +88,7 @@
              (for [path (watch-paths assets)]
                (start-watch! path (event-handler assets options)))]
         (doseq [watcher watchers] (.start watcher))
-        (.join (first watchers)))            
-      (minify assets options))))
+        (.join (first watchers)))
+      (when (not @compiled?)
+        (minify assets options)
+        (reset! compiled? true)))))

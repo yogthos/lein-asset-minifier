@@ -70,10 +70,23 @@ lein minify-assets dev
 
 Defaults to `:dev` when no profile is specified.
 
-The above example could be used with [lein-cooper](https://github.com/kouphax/lein-cooper) to automatically merge the JavaScript assets without minification for development, and then minify the assets for the release. Since the filename stays the same, this approach obviates the need to write additional logic in code to load different assets for development and release builds.
+The minifier also supports watching for file changes, this can be enabled by running:
 
+```
+lein minify-assets watch
+```
 
+When using profiles, you'll also need to specify the profile to watch:
 
+```
+lein minify-assets watch dev
+```
+
+The minifier can also be added as a hook and will minify assets during the compile step.
+
+```clojure
+:hooks [minify-assets.plugin/hooks]
+```
 
 ## License
 
