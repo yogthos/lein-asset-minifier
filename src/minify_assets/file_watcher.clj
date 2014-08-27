@@ -1,12 +1,11 @@
 (ns minify-assets.file-watcher
   (:require [clojure.set :refer [rename-keys]]
             [clojure.java.io :refer [file]])
-  (:import
-       [java.nio.file
-        FileSystems
-        Path
-        Paths
-        StandardWatchEventKinds]))
+  (:import  [java.nio.file
+             FileSystems
+             Path
+             Paths
+             StandardWatchEventKinds]))
 
 (defn register-events! [dir watch-service]
   (.register dir
