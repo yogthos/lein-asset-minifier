@@ -70,7 +70,7 @@ lein minify-assets dev
 
 Defaults to `:dev` when no profile is specified.
 
-The minifier also supports watching for file changes, this can be enabled by running:
+The minifier also supports watching for file changes on JDK 1.7+, this can be enabled by running:
 
 ```
 lein minify-assets watch
