@@ -1,16 +1,12 @@
 (ns minify-assets.file-watcher
   (:require [clojure.set :refer [rename-keys]]
-            [clojure.java.io :refer [file]]
-            [clojure.core.async
-             :as async
-             :refer [go thread <!! >!!]])
+            [clojure.java.io :refer [file]])
   (:import
        [java.nio.file
         FileSystems
         Path
         Paths
-        StandardWatchEventKinds]
-   java.util.concurrent.TimeUnit))
+        StandardWatchEventKinds]))
 
 (defn register-events! [dir watch-service]
   (.register dir
@@ -22,25 +18,18 @@
                 StandardWatchEventKinds/OVERFLOW])
              (into-array [(com.sun.nio.file.SensitivityWatchEventModifier/HIGH)])))
 
-(defn watch-loop [watch-service c]
+(defn watch-loop [watch-service handler]
   (while true
       (when-let [k (.take watch-service)]
         (doseq [event (.pollEvents k)]
-          (>!! c event))
-        (when (.reset k)))))
+          (handler event))
+        (.reset k))))
 
-(defn watch [path]
-  (let [dir  (-> path (file) (.toURI) (Paths/get))
-        c    (async/chan)]
-    (thread
-      (with-open [watch-service (.newWatchService (FileSystems/getDefault))]
-       (register-events! dir watch-service)
-       (watch-loop watch-service c)))
-    c))
+(defn watch [path handler]
+  (let [dir  (-> path (file) (.toURI) (Paths/get))]
+    (with-open [watch-service (.newWatchService (FileSystems/getDefault))]
+      (register-events! dir watch-service)
+      (watch-loop watch-service handler))))
 
-(defn start-watch! [path handler]
-  (Thread.
-    #(let [c (watch path)]
-       (while true
-         (let [e (<!! c)]
-           (handler e))))))
+(defn watch-thread [path handler]
+  (Thread. #(watch path handler)))

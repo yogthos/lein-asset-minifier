@@ -1,6 +1,6 @@
 (ns leiningen.minify-assets
   (:require [asset-minifier.core :as minifier]
-            [minify-assets.file-watcher :refer [start-watch!]]
+            [minify-assets.file-watcher :refer [watch-thread]]
             [clojure.java.io :refer [file]]
             [clojure.string :as s]
             [clojure.core.async :as async :refer [go <! >!]])
@@ -31,25 +31,8 @@
        (map (partial apply str))
        (apply str)))
 
-(defn asset-path [asset]
-  (let [asset-file (file asset)]
-    (if (.isDirectory asset-file)
-      asset
-      (.getParent asset-file))))
-
-(defn watch-paths [assets]
-  (set
-   (mapcat
-     (fn[asset]
-       (cond
-        (string? asset)
-        [(asset-path asset)]
-        (coll? asset)
-        (map asset-path asset)))
-     (vals assets))))
-
 (defn minify [assets options]
-  (println "minifying assets...")
+  (println "\nminifying assets...")
   (doseq [[[path target]
              {:keys [sources
                      original-size
@@ -85,16 +68,32 @@
     (and (< major 2)
          (< minor 7))))
 
+(defn asset-path [asset]
+  (let [asset-file (file asset)]
+    (if (.isDirectory asset-file)
+      asset
+      (.getParent asset-file))))
+
+(defn watch-paths [sources]
+  (cond
+    (string? sources)
+    [(asset-path sources)]
+    (coll? sources)
+    (set (map asset-path sources))))
+
+(defn create-watchers [options [target sources :as asset]]
+  (doall
+    (for [path (watch-paths sources)]
+      (watch-thread path (event-handler (apply assoc {} asset) options)))))
+
 (defn minify-assets [project & opts]
   (let [watch? (some #{"watch"} opts)
         profile (remove #{"watch"} opts)
         {:keys [assets options]} (extract-options project profile)]
     (when (and watch? (unsupported-version?))
-      (thorw (Exception. "watching for changes is only supported on JDK 1.7+")))
+      (throw (Exception. "watching for changes is only supported on JDK 1.7+")))
     (if watch?
-      (let [watchers
-             (for [path (watch-paths assets)]
-               (start-watch! path (event-handler assets options)))]
+      (when-let [watchers (not-empty (mapcat (partial create-watchers options) assets))]
         (doseq [watcher watchers] (.start watcher))
         (.join (first watchers)))
       (when (not @compiled?)
