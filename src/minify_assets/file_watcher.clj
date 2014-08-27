@@ -12,10 +12,6 @@
         StandardWatchEventKinds]
    java.util.concurrent.TimeUnit))
 
-(defn event-modifier-high []
-  (let [c (Class/forName "com.sun.nio.file.SensitivityWatchEventModifier")]
-    (.get (.getField c "HIGH") c)))
-
 (defn register-events! [dir watch-service]
   (.register dir
              watch-service
@@ -24,7 +20,7 @@
                 StandardWatchEventKinds/ENTRY_MODIFY
                 StandardWatchEventKinds/ENTRY_DELETE
                 StandardWatchEventKinds/OVERFLOW])
-             (into-array [(event-modifier-high)])))
+             (into-array [(com.sun.nio.file.SensitivityWatchEventModifier/HIGH)])))
 
 (defn watch-loop [watch-service c]
   (while true

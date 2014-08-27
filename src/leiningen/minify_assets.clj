@@ -79,10 +79,18 @@
 
 (def compiled? (atom false))
 
+(defn unsupported-version? []
+  (let [[major minor] (map #(Integer/parseInt %)
+                        (.split (System/getProperty "java.version") "\\."))]
+    (and (< major 2)
+         (< minor 7))))
+
 (defn minify-assets [project & opts]
   (let [watch? (some #{"watch"} opts)
         profile (remove #{"watch"} opts)
         {:keys [assets options]} (extract-options project profile)]
+    (when (and watch? (unsupported-version?))
+      (thorw (Exception. "watching for changes is only supported on JDK 1.7+")))
     (if watch?
       (let [watchers
              (for [path (watch-paths assets)]
@@ -92,3 +100,14 @@
       (when (not @compiled?)
         (minify assets options)
         (reset! compiled? true)))))
+
+(defn register-events! [dir watch-service]
+  (.register dir
+    watch-service
+    (into-array
+      [StandardWatchEventKinds/ENTRY_CREATE
+       StandardWatchEventKinds/ENTRY_MODIFY
+       StandardWatchEventKinds/ENTRY_DELETE
+       StandardWatchEventKinds/OVERFLOW])
+    (into-array
+      [(com.sun.nio.file.SensitivityWatchEventModifier/HIGH)])))
