@@ -76,10 +76,11 @@ The minifier also supports watching for file changes on JDK 1.7+, this can be en
 lein minify-assets watch
 ```
 
-When using profiles, you'll also need to specify the profile to watch:
+When using profiles, you can also specify the profile to watch, will default to dev:
+
 
 ```
-lein minify-assets watch dev
+lein minify-assets watch release
 ```
 
 The minifier can also be added as a hook and will minify assets during the compile step.

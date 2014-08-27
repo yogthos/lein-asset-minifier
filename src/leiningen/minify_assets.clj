@@ -56,7 +56,6 @@
 
 (defn event-handler [assets options]
   (fn [e]
-    (println (-> e (.context) (.toString)) "was modified!")
     (minify assets options)))
 
 (def compiled? (atom false))
