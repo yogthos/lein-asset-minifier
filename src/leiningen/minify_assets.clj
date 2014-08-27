@@ -4,12 +4,7 @@
             [clojure.java.io :refer [file]]
             [clojure.string :as s]
             [clojure.core.async :as async :refer [go <! >!]])
-  (:import
-       [java.nio.file
-        FileSystems
-        Path
-        Paths
-        StandardWatchEventKinds]))
+  (:import java.security.InvalidParameterException))
 
 (defn extract-options
   "Given a project, returns a seq of cljsbuild option maps."
@@ -17,12 +12,16 @@
   (let [opts (:minify-assets project)
         profile (keyword profile)]
    (cond
-    (and opts profile (nil? (profile opts))) (println "WARNING: profile" (name profile) "not found")
+    ;;when we have a profile specified, try to get the assets associated with it
+    (and opts profile)
+    (or (profile opts)
+        (throw (InvalidParameterException. (str "WARNING: profile " profile " not found"))))
+    ;;if no profile is specified try to look for the assets key
     (some #{:assets} (keys opts)) opts
-    (and opts profile) (profile opts)
-
+    ;;if no assets found, look for dev profile by default
     opts (:dev opts)
-    :else (println "WARNING: no :minify-assets entry found in project definition."))))
+    ;;no valid options found
+    :else (throw (InvalidParameterException. "WARNING: no :minify-assets entry found in project definition.")))))
 
 (defn filter-results [& results]
   (->> results
@@ -87,26 +86,18 @@
       (watch-thread path (event-handler (apply assoc {} asset) options)))))
 
 (defn minify-assets [project & opts]
-  (let [watch? (some #{"watch"} opts)
-        profile (remove #{"watch"} opts)
-        {:keys [assets options]} (extract-options project profile)]
-    (when (and watch? (unsupported-version?))
-      (throw (Exception. "watching for changes is only supported on JDK 1.7+")))
-    (if watch?
-      (when-let [watchers (not-empty (mapcat (partial create-watchers options) assets))]
-        (doseq [watcher watchers] (.start watcher))
-        (.join (first watchers)))
-      (when (not @compiled?)
-        (minify assets options)
-        (reset! compiled? true)))))
-
-(defn register-events! [dir watch-service]
-  (.register dir
-    watch-service
-    (into-array
-      [StandardWatchEventKinds/ENTRY_CREATE
-       StandardWatchEventKinds/ENTRY_MODIFY
-       StandardWatchEventKinds/ENTRY_DELETE
-       StandardWatchEventKinds/OVERFLOW])
-    (into-array
-      [(com.sun.nio.file.SensitivityWatchEventModifier/HIGH)])))
+  (try
+    (let [watch? (some #{"watch"} opts)
+          profile (first (remove #{"watch"} opts))
+          {:keys [assets options]} (extract-options project profile)]
+      (when (and watch? (unsupported-version?))
+        (throw (InvalidParameterException. "watching for changes is only supported on JDK 1.7+")))
+      (if watch?
+        (when-let [watchers (not-empty (mapcat (partial create-watchers options) assets))]
+          (doseq [watcher watchers] (.start watcher))
+          (.join (first watchers)))
+        (when (not @compiled?)
+          (minify assets options)
+          (reset! compiled? true))))
+    (catch InvalidParameterException e
+      (println (.getMessage e)))))
