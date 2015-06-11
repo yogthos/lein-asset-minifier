@@ -66,18 +66,22 @@
     (and (< major 2)
          (< minor 7))))
 
-(defn asset-path [asset]
+(defn asset-paths [asset]
   (let [asset-file (file asset)]
-    (if (.isDirectory asset-file)
-      asset
-      (.getParent asset-file))))
+    (->>
+     (if (.isDirectory asset-file)
+       asset-file
+       (.getParentFile asset-file))
+     (file-seq)
+     (filter #(.isDirectory %))
+     (map #(.getPath %)))))
 
 (defn watch-paths [sources]
   (cond
     (string? sources)
-    [(asset-path sources)]
+    (asset-paths sources)
     (coll? sources)
-    (set (map asset-path sources))))
+    (set (mapcat asset-path sources))))
 
 (defn create-watchers [options [target sources :as asset]]
   (doall
