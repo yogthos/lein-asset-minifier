@@ -81,7 +81,7 @@
     (string? sources)
     (asset-paths sources)
     (coll? sources)
-    (set (mapcat asset-path sources))))
+    (set (mapcat asset-paths sources))))
 
 (defn create-watchers [options [target sources :as asset]]
   (doall
