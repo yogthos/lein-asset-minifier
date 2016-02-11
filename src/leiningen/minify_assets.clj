@@ -88,11 +88,17 @@
     (for [path (watch-paths sources)]
       (watch-thread path (event-handler (apply assoc {} asset) options)))))
 
+(defn- normalize-path [root path]
+  (let [f (file path)]
+    (.getAbsolutePath (if (or (.isAbsolute f) (.startsWith (.getPath f) "\\"))
+                        f (file root path)))))
+
 (defn minify-assets [project & opts]
   (try
     (let [watch? (some #{"watch"} opts)
           profile (first (remove #{"watch"} opts))
-          {:keys [assets options]} (extract-options project profile)]
+          {:keys [in-assets options]} (extract-options project profile)
+          assets (map #(normalize-path (:root project) %) in-assets)]
       (when (and watch? (unsupported-version?))
         (throw (InvalidParameterException. "watching for changes is only supported on JDK 1.7+")))
       (if watch?
