@@ -97,8 +97,9 @@
   (try
     (let [watch? (some #{"watch"} opts)
           profile (first (remove #{"watch"} opts))
-          {:keys [in-assets options]} (extract-options project profile)
-          assets (map #(normalize-path (:root project) %) in-assets)]
+          {:keys [assets options]} (extract-options project profile)
+          root (:root project)
+          assets (into {} (map #(vector (normalize-path root (first %)) (normalize-path root (second %))) assets))]
       (when (and watch? (unsupported-version?))
         (throw (InvalidParameterException. "watching for changes is only supported on JDK 1.7+")))
       (if watch?
