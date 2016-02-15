@@ -89,9 +89,11 @@
       (watch-thread path (event-handler (apply assoc {} asset) options)))))
 
 (defn- normalize-path [root path]
-  (let [f (file path)]
-    (.getAbsolutePath (if (or (.isAbsolute f) (.startsWith (.getPath f) "\\"))
-                        f (file root path)))))
+  (if (vector? path)
+    (into [] (map #(normalize-path root %) path))
+    (let [f (file path)]
+      (.getAbsolutePath (if (or (.isAbsolute f) (.startsWith (.getPath f) "\\"))
+                          f (file root path))))))
 
 (defn minify-assets [project & opts]
   (try
