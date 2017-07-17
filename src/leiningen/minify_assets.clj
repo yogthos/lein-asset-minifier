@@ -7,7 +7,7 @@
   (:import java.security.InvalidParameterException))
 
 (defn extract-options
-  "Given a project, returns a seq of cljsbuild option maps."
+  "Given a project, returns a seq of cljsbuild options vector."
   [project & [profile]]
   (let [opts (:minify-assets project)
         profile (keyword profile)]
@@ -32,14 +32,14 @@
 
 (defn minify [assets options]
   (println "\nminifying assets...")
-  (doseq [[[path target]
+  (let [minify-result (minifier/minify assets)]
+   (doseq [[[path target]
              {:keys [sources
                      original-size
                      compressed-size
                      gzipped-size
                      warnings
-                     errors]}]
-            (minifier/minify assets options)]
+                     errors]}] minify-result]
       (if (empty? path)
         (println "\nno sources found at path:" path)
         (do
@@ -52,7 +52,7 @@
           (when (not-empty warnings)
             (println "warnings:\n" (s/join "\n" warnings)))
           (when (not-empty errors)
-            (println "errors:\n" (s/join "\n" errors)))))))
+            (println "errors:\n" (s/join "\n" errors))))))))
 
 (defn event-handler [assets options]
   (fn [e]
@@ -95,13 +95,19 @@
       (.getAbsolutePath (if (or (.isAbsolute f) (.startsWith (.getPath f) "\\"))
                           f (file root path))))))
 
+(defn- normalize-assets [root assets]
+  (map (fn [[asset-type config-item]] 
+         (let [{:keys [source target]} config-item]
+          [asset-type {:source (normalize-path root source)
+                       :target (normalize-path root target)}])) assets))
+
 (defn minify-assets [project & opts]
   (try
     (let [watch? (some #{"watch"} opts)
           profile (first (remove #{"watch"} opts))
           {:keys [assets options]} (extract-options project profile)
           root (:root project)
-          assets (into {} (map #(vector (normalize-path root (first %)) (normalize-path root (second %))) assets))]
+          assets (normalize-assets root assets)]
       (when (and watch? (unsupported-version?))
         (throw (InvalidParameterException. "watching for changes is only supported on JDK 1.7+")))
       (if watch?

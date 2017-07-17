@@ -91,7 +91,7 @@ The minifier can also be added as a hook and will minify assets during the compi
 
 ## License
 
-Copyright © 2014 Yogthos
+Copyright © 2017 Yogthos
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
