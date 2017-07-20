@@ -16,7 +16,7 @@
 (defn- minify [assets]
   (println "\nminifying assets...")
   (let [minify-result (minifier/minify assets)]
-   (doseq [{:keys [sources
+    (doseq [{:keys [sources
                     targets
                     target
                     original-size
@@ -24,25 +24,25 @@
                     gzipped-size
                     warnings
                     errors]} minify-result]
-        (do
-          (println (filter-results
-                    "\nminifying: " (if targets
-                                      (s/join ", " targets)
-                                      target)
-                    "\nassets: " (s/join ", " sources)
-                    "\noriginal size: " original-size
-                    "\ncompressed size: " compressed-size
-                    "\ngzipped size: " gzipped-size))
-          (when (not-empty warnings)
-            (println "warnings:\n" (s/join "\n" warnings)))
-          (when (not-empty errors)
-            (println "errors:\n" (s/join "\n" errors)))))))
+      (do
+        (println (filter-results
+                  "\nminifying: " (if targets
+                                    (s/join ", " targets)
+                                    target)
+                  "\nassets: " (s/join ", " sources)
+                  "\noriginal size: " original-size
+                  "\ncompressed size: " compressed-size
+                  "\ngzipped size: " gzipped-size))
+        (when (not-empty warnings)
+          (println "warnings:\n" (s/join "\n" warnings)))
+        (when (not-empty errors)
+          (println "errors:\n" (s/join "\n" errors)))))))
 
 (def compiled? (atom false))
 
 (defn- java-not-supports-watch? []
   (let [[major minor] (map #(Integer/parseInt %)
-                        (.split (System/getProperty "java.version") "\\."))]
+                           (.split (System/getProperty "java.version") "\\."))]
     (and (< major 2)
          (< minor 7))))
 
@@ -68,13 +68,12 @@
                :paths (watch-paths source)}))
        (map (fn [{:keys [config-item paths]}]
               (for [path paths]
-                (do
-                  (watch-thread path #(minify [config-item]))))))
+                (watch-thread path (fn* [] (minify [config-item]))))))
        (flatten)))
 
 (defn- normalize-path [root path]
   (if (coll? path)
-    (into [] (map #(normalize-path root %) path))
+    (vec (map #(normalize-path root %) path))
     (let [f (file path)]
       (.getAbsolutePath (if (or (.isAbsolute f) (.startsWith (.getPath f) "\\"))
                           f (file root path))))))
@@ -85,22 +84,20 @@
                  :target (normalize-path root target)}]))
 
 (defn- run-assets-watch [config]
- (if (java-not-supports-watch?)
-   (throw (InvalidParameterException. "watching for changes is only supported on JDK 1.7+"))  
-   (let [watchers (create-watchers config)]
-       (doseq [watcher watchers]
-         (.start watcher))
-       (.join (first watchers)))))
+  (if (java-not-supports-watch?)
+    (throw (InvalidParameterException. "watching for changes is only supported on JDK 1.7+"))
+    (let [watchers (create-watchers config)]
+      (doseq [watcher watchers]
+        (.start watcher))
+      (.join (first watchers)))))
 
 (defn- run-assets-minify [config]
-  (when (not @compiled?)
-    (minify config)
-    (reset! compiled? true)))
+  (when-not (deref compiled?) (minify config) (reset! compiled? true)))
 
 (defn minify-assets [project & opts]
   (let [watch? (some #{"watch"} opts)
         root (:root project)
         config (normalize-assets root (:minify-assets project))]
-   (if watch?
-     (run-assets-watch config)
-     (run-assets-minify config))))
+    (if watch?
+      (run-assets-watch config)
+      (run-assets-minify config))))
