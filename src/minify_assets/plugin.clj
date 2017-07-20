@@ -10,4 +10,3 @@
 (defn hooks []
   (robert.hooke/add-hook #'leiningen.compile/compile
                          #'add-minify-assets-hook))
-

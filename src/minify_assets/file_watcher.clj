@@ -21,7 +21,7 @@
   (while true
       (when-let [k (.take watch-service)]
         (doseq [event (.pollEvents k)]
-          (handler event))
+          (handler))
         (.reset k))))
 
 (defn watch [path handler]
