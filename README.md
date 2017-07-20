@@ -8,38 +8,43 @@ To use `lein-asset-minifier`, add it as a plugin to your `project.clj` file:
 
 [![Clojars Project](http://clojars.org/lein-asset-minifier/latest-version.svg)](https://clojars.org/lein-asset-minifier)
 
-Then add a new `:minify-assets` key to your `project.clj` file that contains a map of configuration options.
-At minimum there must be an `:assets` key that specifies the assets to minify.
+Then add a new `:minify-assets` key to your `project.clj` file that contains a vector of configuration items.
 
-The assets are specified using a map where the key is a string that is the name of the minified file and the
-value points to the assets to minify. The assets can be either a filename, a directory, or a vector containing
-a mix of files and directories.
+Each configuration item is a vector, where the first element is type:
+
+* `:html`
+* `:css`
+* `:js`
+
+The second element is a map with two required keys: `:source` and `:target`. The third is optional `:opts`, you can use it to pass compilator specific options.
+
+The source can be either a filename, a directory, or a vector containing
+a mix of files and directories. But target is always a string, target filename or target directory.
 
 ```clojure
-:minify-assets
-{:assets
-  {"resources/public/css/site.min.css" "dev/resources/css"
-   "resources/public/css/vendor.min.css" "dev/resources/vendor"
-   "resources/public/js/site.min.js" "dev/resources/js"
-   "resources/public/js/vendor.min.js" ["dev/resources/vendor1"
-                                        "dev/resources/vendor2"
-                                        "dev/resources/some-script.js"]}}
+:minify-assets 
+[[:html {:source "dev/resource/html" :target "dev/minified/html"}]
+         [:css {:source "dev/resources/css" :target "dev/minified/css/styles.min.css"}]
+         [:js {:source ["dev/res/js1", "dev/res/js2"] :target "dev/minified/js/script.min.js"}]]
 ```
 
 The minifier also takes optional minification hints:
 
 ```clojure
 :minify-assets
-{:assets
-  {"site.min.css" "dev/resources/css"}
- :options {:linebreak 80
-           :optimization :advanced
-           :externs ["jquery.min.js"]}}
+[[:html {:source "html" :target "html" :opts {:remove-http-protocol false}]]
 ```
 
-* `:linebreak` - specifies optional linebreak for CSS resources
+For html configuration options please see [clj-html-compressor](https://github.com/Atsman/clj-html-compressor)
+
+Js configuration options:
+
 * `:optimizations` - specifies the level of JavaScript optimizations, valid values are `:none`, `:simple`, `:whitespace` or `:advanced`, defaults to `:simple`
 * `:externs` - can be used to specify the externs file to be used with the advanced optimisations to prevent munging of external functions
+
+Css configuration options:
+
+* `:linebreak` - specifies optional linebreak for CSS resources
 
 The plugin can be now be invoked by running:
 
@@ -48,40 +53,12 @@ lein minify-assets
 
 ```
 
-It's also possible to specify different profiles for asset minification as follows:
-
-```clojure
-:minify-assets
-{:dev
- {:assets
-   {"resources/public/css/site.min.css" "dev/resources/public/css"
-    "resources/public/js/site.min.js" "dev/resources/public/js"}
-  :options {:optimization :none}}
- :release
- {:assets
-   {"resources/public/css/site.min.css" "dev/resources/public/css"
-    "resources/public/js/site.min.js" "dev/resources/public/js"}
-  :options {:optimization :advanced}}}
-```
-
-```
-lein minify-assets dev
-```
-
-Defaults to `:dev` when no profile is specified.
-
 The minifier also supports watching for file changes on JDK 1.7+, this can be enabled by running:
 
 ```
 lein minify-assets watch
 ```
 
-When using profiles, you can also specify the profile to watch, will default to dev:
-
-
-```
-lein minify-assets watch release
-```
 
 The minifier can also be added as a hook and will minify assets during the compile step.
 
