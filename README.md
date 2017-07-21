@@ -16,23 +16,21 @@ Each configuration item is a vector, where the first element is type:
 * `:css`
 * `:js`
 
-The second element is a map with two required keys: `:source` and `:target`. The third is optional `:opts`, you can use it to pass compilator specific options.
+The second element is a map with two required keys: `:source` and `:target`. The third is optional `:opts`, you can use it to pass compiler specific options.
 
 The source can be either a filename, a directory, or a vector containing
 a mix of files and directories. But target is always a string, target filename or target directory.
 
 ```clojure
-:minify-assets 
-[[:html {:source "dev/resource/html" :target "dev/minified/html"}]
-         [:css {:source "dev/resources/css" :target "dev/minified/css/styles.min.css"}]
-         [:js {:source ["dev/res/js1", "dev/res/js2"] :target "dev/minified/js/script.min.js"}]]
+:minify-assets [[:html {:source "dev/resource/html" :target "dev/minified/html"}]
+                [:css {:source "dev/resources/css" :target "dev/minified/css/styles.min.css"}]
+                [:js {:source ["dev/res/js1", "dev/res/js2"] :target "dev/minified/js/script.min.js"}]]
 ```
 
 The minifier also takes optional minification hints:
 
 ```clojure
-:minify-assets
-[[:html {:source "html" :target "html" :opts {:remove-http-protocol false}]]
+:minify-assets [[:html {:source "html" :target "html" :opts {:remove-http-protocol false}]]
 ```
 
 For html configuration options please see [clj-html-compressor](https://github.com/Atsman/clj-html-compressor)
@@ -59,12 +57,21 @@ The minifier also supports watching for file changes on JDK 1.7+, this can be en
 lein minify-assets watch
 ```
 
-
 The minifier can also be added as a hook and will minify assets during the compile step.
 
 ```clojure
 :hooks [minify-assets.plugin/hooks]
 ```
+
+If you want to use different profiles, refer to [leiningen profile feature](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md)
+
+```clojure
+{:profiles {:dev {:minify-assets [[:html {:source "source" :target "target"}]]}}}
+```
+
+Then run minification with next command.
+
+`lein with-profile dev minifyassets`
 
 ## License
 
