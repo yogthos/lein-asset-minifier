@@ -71,7 +71,7 @@ If you want to use different profiles, refer to [leiningen profile feature](http
 
 Then run minification with next command.
 
-`lein with-profile dev minifyassets`
+`lein with-profile dev minify-assets`
 
 ## License
 
