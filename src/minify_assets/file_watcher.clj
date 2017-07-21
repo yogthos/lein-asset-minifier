@@ -11,18 +11,18 @@
   (.register dir
              watch-service
              (into-array
-               [StandardWatchEventKinds/ENTRY_CREATE
-                StandardWatchEventKinds/ENTRY_MODIFY
-                StandardWatchEventKinds/ENTRY_DELETE
-                StandardWatchEventKinds/OVERFLOW])
+              [StandardWatchEventKinds/ENTRY_CREATE
+               StandardWatchEventKinds/ENTRY_MODIFY
+               StandardWatchEventKinds/ENTRY_DELETE
+               StandardWatchEventKinds/OVERFLOW])
              (into-array [(com.sun.nio.file.SensitivityWatchEventModifier/HIGH)])))
 
 (defn watch-loop [watch-service handler]
   (while true
-      (when-let [k (.take watch-service)]
-        (doseq [event (.pollEvents k)]
-          (handler event))
-        (.reset k))))
+    (when-let [k (.take watch-service)]
+      (doseq [event (.pollEvents k)]
+        (handler))
+      (.reset k))))
 
 (defn watch [path handler]
   (let [dir  (-> path (file) (.toURI) (Paths/get))]
