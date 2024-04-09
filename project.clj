@@ -1,4 +1,4 @@
-(defproject lein-asset-minifier "0.4.6"
+(defproject lein-asset-minifier "0.4.7"
   :description "plugin for CSS/Js asset minification"
   :url "https://github.com/yogthos/lein-asset-minifier"
   :license {:name "Eclipse Public License"
