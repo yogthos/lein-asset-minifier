@@ -2,8 +2,7 @@
   (:require [asset-minifier.core :as minifier]
             [minify-assets.file-watcher :refer [watch-thread]]
             [clojure.java.io :refer [file]]
-            [clojure.string :as s]
-            [clojure.core.async :as async :refer [go <! >!]])
+            [clojure.string :as s])
   (:import java.security.InvalidParameterException))
 
 (defn- filter-results [& results]
